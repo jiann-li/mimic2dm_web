@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mimic2DM: Learning to Control Physically-simulated 3D Characters via Generating and Mimicking 2D Motions</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Academicons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;600&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <section class="pt-16 pb-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+        <h1 class="text-2xl sm:text-3xl font-bold mb-6 tracking-tight">
+            Learning to Control Physically-simulated 3D Characters via <span class="gradient-text">Generating and Mimicking 2D Motions</span>
+        </h1>
+        
+        <!-- Authors -->
+        <div class="flex flex-wrap justify-center gap-x-8 gap-y-2 mb-6 text-lg">
+            <a href="#" class="font-medium text-blue-600 hover:underline">Jianan Li<sup>1</sup></a>
+            <a href="https://xiao-chen.tech/" class="font-medium text-blue-600 hover:underline">Xiao Chen<sup>1</sup></a>
+            <a href="https://taohuang13.github.io/" class="font-medium text-blue-600 hover:underline">Tao Huang<sup>2,3</sup></a>
+            <a href="https://ttwong12.github.io/" class="font-medium text-blue-600 hover:underline">Tien-Tsin Wong<sup>4</sup></a>
+        </div>
+
+        <!-- Affiliations -->
+        <div class="text-sm text-gray-600 mb-8 flex flex-wrap justify-center gap-x-6 gap-y-1">
+            <span><sup>1</sup>The Chinese University of Hong Kong</span>
+            <span><sup>2</sup>Shanghai AI Laboratory</span>
+            <div class="w-full"></div>
+            <span><sup>3</sup>Shanghai Jiao Tong University</span>
+            <span><sup>4</sup>Monash University</span>
+        </div>
+
+        <!-- Links -->
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <a href="#" class="btn-link bg-gray-900 text-white px-5 py-2 rounded-full flex items-center gap-2 hover:bg-gray-800">
+                <i class="ai ai-arxiv"></i> arXiv
+            </a>
+            <a href="#" class="btn-link bg-gray-900 text-white px-5 py-2 rounded-full flex items-center gap-2 hover:bg-gray-800">
+                <i class="fas fa-file-pdf"></i> Paper
+            </a>
+            <a href="#" class="btn-link bg-gray-900 text-white px-5 py-2 rounded-full flex items-center gap-2 hover:bg-gray-800">
+                <i class="fab fa-github"></i> Code
+            </a>
+        </div>
+
+        <!-- Teaser Video/Image -->
+        <div class="w-full mb-4">
+            <img src="assets/teaser.png" alt="Teaser Figure" class="w-full h-auto">
+        </div>
+
+        <!-- Comparison Panel -->
+        <div class="flex flex-col md:flex-row items-center justify-center gap-4 max-w-7xl mx-auto mt-8">
+            <!-- Column 1: Source Video -->
+            <div class="flex-1 w-full">
+                <h3 class="text-lg font-semibold mb-2 text-center text-gray-800">Source Video</h3>
+                <div class="video-container bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200">
+                    <video id="video-src" muted playsinline class="w-full h-full object-cover opacity-0 transition-opacity duration-200">
+                        <source src="assets/teaser_video_src.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- Arrow 1 -->
+            <div class="hidden md:flex flex-col items-center justify-center text-gray-400 px-2">
+                <i class="fas fa-chevron-right text-2xl"></i>
+                <span class="text-xs font-medium mt-1">Extract</span>
+            </div>
+            <!-- Mobile Arrow -->
+            <div class="md:hidden text-gray-400 py-2">
+                <i class="fas fa-chevron-down text-xl"></i>
+            </div>
+
+            <!-- Column 2: 2D Motion -->
+            <div class="flex-1 w-full">
+                <h3 class="text-lg font-semibold mb-2 text-center text-gray-800">2D Motion</h3>
+                <div class="video-container bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200">
+                    <video id="video-ref" muted playsinline class="w-full h-full object-cover opacity-0 transition-opacity duration-200">
+                        <source src="assets/teaser_video_ref.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+
+            <!-- Arrow 2 -->
+            <div class="hidden md:flex flex-col items-center justify-center text-gray-400 px-2">
+                <i class="fas fa-chevron-right text-2xl"></i>
+                <span class="text-xs font-medium mt-1">Imitate</span>
+            </div>
+            <!-- Mobile Arrow -->
+            <div class="md:hidden text-gray-400 py-2">
+                <i class="fas fa-chevron-down text-xl"></i>
+            </div>
+
+            <!-- Column 3: Simulated Character -->
+            <div class="flex-1 w-full">
+                <h3 class="text-lg font-semibold mb-2 text-center text-gray-800">Simulated Character</h3>
+                <div class="video-container bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200">
+                    <video id="video-sim" muted playsinline class="w-full h-full object-cover opacity-0 transition-opacity duration-200">
+                        <source src="assets/teaser_video_sim.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+
+        <p class="teaser-caption max-w-3xl mx-auto mt-8 mb-12">
+            <strong>Mimic2DM</strong> effectively learns character controllers for diverse motion types by directly imitating 2D motion sequences extracted from in-the-wild videos, without requiring any 3D motion data.
+        </p>
+    </section>
+
+    <!-- Abstract -->
+    <section class="py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-4 border-b pb-2">Abstract</h2>
+        <p class="text-justify text-gray-700 leading-relaxed mb-6">
+            Video data is more cost-effective than motion capture data for learning 3D character motion controllers, yet synthesizing realistic and diverse behaviors directly from videos remains challenging. Previous approaches typically rely on off-the-shelf motion reconstruction techniques to obtain 3D trajectories for physics-based imitation. These reconstruction methods struggle with generalizability, as they either require 3D training data (potentially scarce) or fail to produce physically plausible poses, hindering their application to challenging scenarios like human-object interaction (HOI) or non-human characters.
+        </p>
+        <p class="text-justify text-gray-700 leading-relaxed">
+            We tackle this challenge by introducing <strong>Mimic2DM</strong>, a novel motion imitation framework that learns the control policy directly and solely from widely available 2D keypoint trajectories extracted from videos. By minimizing the reprojection error, we train a general single-view 2D motion tracking policy capable of following arbitrary 2D reference motions in physics simulation, using only 2D motion data. The policy, when trained on diverse 2D motions captured from different viewpoints, can further acquire 3D motion tracking capabilities by aggregating multiple views. Moreover, we develop a transformer-based autoregressive 2D motion generator and integrate it into a hierarchical control framework to synthesize physically plausible and diverse motions across a range of domains, including dancing, soccer dribbling, and animal movements.
+        </p>
+    </section>
+
+    <!-- Method -->
+    <section class="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100 my-8">
+        <h2 class="text-2xl font-bold mb-6 text-center">Methodology</h2>
+        
+        <!-- Pipeline Image -->
+        <div class="w-full mb-8">
+            <img src="assets/method_overview.png" alt="System Overview (Mimic2DM Pipeline)" class="w-full h-auto">
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">1. Imitation as Reprojection Minimization</h3>
+                <p class="text-sm text-gray-600">
+                    We unify motion reconstruction and physics-based imitation into a single reprojection minimization task. The policy learns to control a simulated character to match 2D observations projected from the simulation to the video reference.
+                </p>
+            </div>
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">2. View-Agnostic Tracking</h3>
+                <p class="text-sm text-gray-600">
+                    A general policy is trained to minimize reprojection error under arbitrary camera viewpoints. By aggregating features from multiple views, the policy implicitly learns 3D motion understanding without explicit 3D supervision.
+                </p>
+            </div>
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">3. Hierarchical Control</h3>
+                <p class="text-sm text-gray-600">
+                    We integrate a transformer-based autoregressive 2D motion generator (using VQ-VAE tokens) to produce high-quality 2D reference trajectories that guide the tracking policy for generative tasks.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <h2 class="text-2xl font-bold mb-8 text-center">Results & Demonstrations</h2>
+
+        <!-- Demos Grid -->
+        <div class="grid md:grid-cols-2 gap-6 mb-12">
+            <!-- Demo 1: Soccer -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-lg mb-3">⚽ Human-object Interaction (Soccer)</h3>
+                <div class="video-container mb-2">
+                    <video autoplay loop muted playsinline class="w-full h-full object-cover">
+                        <source src="assets/demo_soccer.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <p class="text-sm text-gray-600 text-center">
+                    Demonstrating the acquisition of complex ball interaction dynamics using only 2D video data.
+                </p>
+            </div>
+
+            <!-- Demo 2: Animal -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-lg mb-3">🐕 Non-human Characters (Robotic Dog)</h3>
+                <div class="video-container mb-2">
+                    <video autoplay loop muted playsinline class="w-full h-full object-cover">
+                        <source src="assets/demo_dog.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <p class="text-sm text-gray-600 text-center">
+                    Demonstrating the framework's versatility on quadruped robots.
+                </p>
+            </div>
+
+            <!-- Demo 3: Dancing -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-lg mb-3">💃 Whole-body Motion Tracking</h3>
+                <div class="video-container mb-2">
+                    <video autoplay loop muted playsinline class="w-full h-full object-cover">
+                        <source src="assets/whole_body_tracking.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <p class="text-sm text-gray-600 text-center">
+                    Zero-Shot 3D motion tracking via multi-view aggregation.
+                </p>
+            </div>
+
+            <!-- Demo 4: Hierarchical Generation -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-lg mb-3">🔄 Generative Control</h3>
+                <div class="video-container mb-2">
+                    <video autoplay loop muted playsinline class="w-full h-full object-cover">
+                        <source src="assets/dribble_control.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <p class="text-sm text-gray-600 text-center">
+                    Synthesizing diverse dribbling styles and achieving seamless skill transitions via hierarchical control.
+                </p>
+            </div>
+        </div>
+
+        <!-- Comparisons -->
+        <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 relative group">
+            <h3 class="font-bold text-xl mb-4">Comparison with Baselines</h3>
+            
+            <!-- Navigation Buttons -->
+            <button id="prev-comparison" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-3 shadow-md z-10 transition-all focus:outline-none">
+                <i class="fas fa-chevron-left text-gray-600"></i>
+            </button>
+            <button id="next-comparison" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-3 shadow-md z-10 transition-all focus:outline-none">
+                <i class="fas fa-chevron-right text-gray-600"></i>
+            </button>
+
+            <div class="flex flex-col md:flex-row gap-4 items-end px-2 md:px-8">
+                <!-- Reference 2D Motion -->
+                <div class="w-full md:w-48 flex-shrink-0">
+                    <div class="text-center text-sm font-semibold mb-2 text-gray-600">Reference 2D Motion</div>
+                    <div class="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200 aspect-square relative">
+                        <video id="comp-video-ref" muted playsinline autoplay loop class="w-full h-full object-cover absolute inset-0">
+                            <source src="assets/teaser_video_ref.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <!-- Baseline -->
+                <div class="flex-1 w-full">
+                    <div class="text-center text-sm font-semibold mb-2 text-gray-600">Baseline (Sfv*)</div>
+                    <div id="comp-baseline-container" class="h-48 bg-gray-200 rounded flex items-center justify-center text-gray-500 overflow-hidden relative">
+                        <span>Baseline (Sfv*) Visualization</span>
+                    </div>
+                </div>
+
+                <!-- Ours -->
+                <div class="flex-1 w-full">
+                    <div class="text-center text-sm font-semibold mb-2 text-blue-600">Ours (Mimic2DM)</div>
+                    <div id="comp-ours-container" class="h-48 bg-blue-100 rounded flex items-center justify-center text-blue-600 border border-blue-200 overflow-hidden relative">
+                        <span>Ours (Mimic2DM) Visualization</span>
+                    </div>
+                </div>
+            </div>
+            
+            <p id="comp-caption" class="text-center text-sm text-gray-600 mt-4 px-2 md:px-8 min-h-[3rem]">
+                <strong>Left:</strong> Reference 2D motion.
+                <strong>Middle:</strong> Baseline methods relying on explicit 3D reconstruction often fail in complex interaction scenarios (e.g., ball penetration, floating). 
+                <strong>Right:</strong> Our method (Mimic2DM) minimizes reprojection error directly in simulation, ensuring physical validity and robust tracking.
+            </p>
+
+            <!-- Dots -->
+            <div id="comp-dots" class="flex justify-center gap-2 mt-4">
+                <!-- Dots will be generated by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Citation -->
+    <section class="py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-4">Citation</h2>
+        <div class="bibtex-box">
+            @article{li2025mimic2dm,
+            title={Learning to Control Physically-simulated 3D Characters via Generating and Mimicking 2D Motions},
+            author={Li, Jianan and Chen, Xiao and Huang, Tao and Wong, Tien-Tsin},
+            journal={arXiv preprint arXiv:XXXX.XXXXX},
+            year={2025}
+            }
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 text-gray-600 py-8 text-center mt-12">
+        <div class="max-w-4xl mx-auto px-4">
+            <p class="text-xs">
+                This website is licensed under a <a href="#" class="text-blue-400 hover:underline">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="js/script.js"></script>
+</body>
+</html>
